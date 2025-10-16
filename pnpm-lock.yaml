@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      solady:
+        specifier: ^0.1.26
+        version: 0.1.26
     devDependencies:
       '@nomicfoundation/hardhat-ignition':
         specifier: ^3.0.3
@@ -748,6 +752,9 @@ packages:
 
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
+
+  solady@0.1.26:
+    resolution: {integrity: sha512-dhGr/ptJFdea/1KE6xgqgwEdbMhUiSfRc6A+jLeltPe16zyt9qtED3PElIBVRnzEmUO5aZTjKVAr6SlqXBBcIw==}
 
   split2@3.2.2:
     resolution: {integrity: sha512-9NThjpgZnifTkJpzTZ7Eue85S49QwpNhZTq6GRJwObb6jnLFNGB7Qm73V5HewTROPyxD0C29xqmaI68bQtV+hg==}
@@ -1643,6 +1650,8 @@ snapshots:
   semver@7.7.3: {}
 
   sisteransi@1.0.5: {}
+
+  solady@0.1.26: {}
 
   split2@3.2.2:
     dependencies:

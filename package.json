@@ -10,5 +10,8 @@
     "hardhat": "^3.0.7",
     "typescript": "~5.8.3",
     "viem": "^2.38.3"
+  },
+  "dependencies": {
+    "solady": "^0.1.26"
   }
 }
