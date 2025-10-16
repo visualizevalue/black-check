@@ -25,16 +25,23 @@ const config: HardhatUserConfig = {
     hardhatMainnet: {
       type: "edr-simulated",
       chainType: "l1",
+      allowUnlimitedContractSize: true,
+      forking: {
+        url: "https://eth-mainnet.g.alchemy.com/v2/jEPIIsoQX9lQRsmf9LJ72HYYS9zqm39p",
+        blockNumber: 23594514,
+      },
     },
-    hardhatOp: {
-      type: "edr-simulated",
-      chainType: "op",
+    mainnet: {
+      type: "http",
+      chainType: "l1",
+      url: configVariable("MAINNET_RPC_URL"),
+      accounts: [configVariable("VV_PRIV_KEY")],
     },
     sepolia: {
       type: "http",
       chainType: "l1",
       url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+      accounts: [configVariable("VV_DEV_PRIV_KEY")],
     },
   },
 };

@@ -1,3 +1,11 @@
+        // 80-check → 0.000244140625 (1/4096)
+        // 40-check → 0.00048828125  (2/4096)
+        // 20-check → 0.0009765625   (4/4096)
+        // 10-check → 0.001953125    (8/4096)
+        //  5-check → 0.00390625    (16/4096)
+        //  4-check → 0.0078125     (32/4096)
+        //  1-check → 0.015625      (64/4096)
+
 # Sample Hardhat 3 Beta Project (`node:test` and `viem`)
 
 This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
