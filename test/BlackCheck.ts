@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { beforeEach, describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,19 +14,27 @@ const __dirname = dirname(__filename);
 
 describe("Black Check", async function () {
   const { viem, ignition } = await network.connect("hardhatMainnet");
-  const publicClient = await viem.getPublicClient();
   const testClient = await viem.getTestClient();
 
   let contract: Awaited<ReturnType<typeof viem.getContractAt<"BlackCheck">>>;
   let checksContract: Awaited<ReturnType<typeof viem.getContractAt<"IChecks">>>;
+  let snapshotId: `0x${string}`;
 
   beforeEach(async () => {
+    // Take a snapshot of the blockchain state to restore after each test
+    snapshotId = await testClient.snapshot();
+
     // Deploy the BlackCheck contract using Ignition
     const { blackCheck } = await ignition.deploy(BlackCheckModule);
 
     // Get viem contract instances
     contract = await viem.getContractAt("BlackCheck", blackCheck.address);
     checksContract = await viem.getContractAt("IChecks", CHECKS_ADDRESS);
+  });
+
+  afterEach(async () => {
+    // Revert to the snapshot to restore NFT state for next test
+    await testClient.revert({ id: snapshotId });
   });
 
   describe("Token Metadata", () => {
@@ -267,6 +275,86 @@ describe("Black Check", async function () {
   });
 
   describe("One (Black Check Creation)", () => {
+    it("should prevent black check withdrawal for less than 1.00 $BLKCHK", async () => {
+      // Deposit all 64 single checks from their respective owners
+      const depositors: Array<{ address: `0x${string}`; balance: bigint }> = [];
+
+      for (const checkId of SINGLE_CHECKS) {
+        const owner = await checksContract.read.ownerOf([checkId]);
+
+        await testClient.setBalance({
+          address: owner,
+          value: parseEther("10"),
+        });
+
+        await testClient.impersonateAccount({ address: owner });
+        const ownerClient = await viem.getWalletClient(owner);
+
+        const balanceBefore = await contract.read.balanceOf([owner]);
+
+        await checksContract.write.safeTransferFrom(
+          [owner, contract.address, checkId],
+          { account: owner, client: ownerClient },
+        );
+
+        const balanceAfter = await contract.read.balanceOf([owner]);
+        depositors.push({
+          address: owner,
+          balance: balanceAfter - balanceBefore,
+        });
+
+        await testClient.stopImpersonatingAccount({ address: owner });
+      }
+
+      // Verify total supply = 1.0 tokens
+      const supplyAfterDeposits = await contract.read.totalSupply();
+      assert.equal(supplyAfterDeposits, parseEther("1"));
+
+      // Call one() to create black check
+      const [deployer] = await viem.getWalletClients();
+      await contract.write.one([SINGLE_CHECKS], { account: deployer.account });
+
+      // Verify it's a black check (divisorIndex 7)
+      const blackCheckId = SINGLE_CHECKS[0];
+      const checkData = await checksContract.read.getCheck([blackCheckId]);
+      assert.equal(checkData.stored.divisorIndex, 7);
+
+      // Find a depositor who doesn't have 1.0 tokens (they all have 0.015625 each)
+      const smallDepositor = depositors.find(
+        (d) => d.balance < parseEther("1"),
+      )!;
+      assert(
+        smallDepositor,
+        "Should have a depositor with less than 1.0 tokens",
+      );
+
+      // Try to withdraw the black check - should fail because it costs 1.0 tokens
+      await testClient.impersonateAccount({ address: smallDepositor.address });
+      const smallDepositorClient = await viem.getWalletClient(
+        smallDepositor.address,
+      );
+
+      await assert.rejects(
+        async () => {
+          await contract.write.withdraw([blackCheckId], {
+            account: smallDepositor.address,
+            client: smallDepositorClient,
+          });
+        },
+        (error: Error) => {
+          return (
+            error.message.includes("InsufficientBalance") ||
+            error.message.includes("reverted")
+          );
+        },
+        "Should fail to withdraw black check with only 0.015625 tokens",
+      );
+
+      await testClient.stopImpersonatingAccount({
+        address: smallDepositor.address,
+      });
+    });
+
     it("should create a black check from 64 single checks", async () => {
       // Deposit all 64 single checks
       for (const checkId of SINGLE_CHECKS) {
