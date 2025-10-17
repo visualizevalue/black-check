@@ -30,8 +30,8 @@ contract BlackCheck is ERC20, IERC721Receiver {
     /// @notice Emitted when a Check is deposited
     event CheckDeposited(address indexed depositor, uint256 indexed checkId, uint256 amount);
 
-    /// @notice Emitted when a Check is withdrawn
-    event CheckWithdrawn(address indexed withdrawer, uint256 indexed checkId, uint256 amount);
+    /// @notice Emitted when a Check is extracted
+    event CheckExtracted(address indexed extractor, uint256 indexed checkId, uint256 amount);
 
     /// @notice Emitted when Checks are composited
     event ChecksComposited(uint256 indexed keepId, uint256 indexed burnId, address compositor);
@@ -43,6 +43,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     error MaxSupplyExceeded();
     error OnlyChecksContract();
     error NoEthAccepted();
+    error NotAllowed();
 
     /// @notice Returns the name of the token
     function name() public pure override returns (string memory) {
@@ -67,33 +68,47 @@ contract BlackCheck is ERC20, IERC721Receiver {
         // Only accept Checks NFTs
         if (msg.sender != address(CHECKS)) revert OnlyChecksContract();
 
-        // Calculate mint amount
-        uint256 mintAmount = calculateMintAmount(CHECKS.getCheck(tokenId).stored.divisorIndex);
-
-        // Check max supply
-        if (totalSupply() + mintAmount > MAX_SUPPLY) revert MaxSupplyExceeded();
-
-        // Mint tokens to the depositor
-        _mint(from, mintAmount);
-
-        emit CheckDeposited(from, tokenId, mintAmount);
+        _processMint(from, tokenId);
 
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    /// @notice Withdraw a specific Check NFT by burning the corresponding amount of tokens
-    /// @param checkId The ID of the Check to withdraw
-    function withdraw(uint256 checkId) external {
+    /// @notice Mint tokens by transferring in approved Check NFTs
+    /// @param checkIds Array of Check IDs to mint tokens for (must be approved to this contract)
+    /// @dev Anyone can call this function. Tokens are always minted to the NFT owner, not the caller.
+    function mint(uint256[] calldata checkIds) external {
+        for (uint256 i = 0; i < checkIds.length; i++) {
+            // Get the owner of the check
+            address owner = CHECKS.ownerOf(checkIds[i]);
+
+            // Check whether this contract is allowed to transfer this Check
+            // Requires owner to have approved this contract via approve() or setApprovalForAll()
+            if (
+                CHECKS.getApproved(checkIds[i]) != address(this) &&
+                (!CHECKS.isApprovedForAll(owner, address(this)))
+            ) { revert NotAllowed(); }
+
+            // Transfer the Check NFT from the owner to this contract
+            CHECKS.transferFrom(owner, address(this), checkIds[i]);
+
+            // Mint tokens to the owner (not the caller)
+            _processMint(owner, checkIds[i]);
+        }
+    }
+
+    /// @notice Extract a specific Check NFT by burning the corresponding amount of tokens
+    /// @param checkId The ID of the Check to extract
+    function extract(uint256 checkId) external {
         // Get the check's divisor index
-        uint256 burnAmount = calculateMintAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
+        uint256 burnAmount = _calculateMintAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
 
         // Burn tokens (reverts on insufficient balance)
         _burn(msg.sender, burnAmount);
 
-        // Transfer the Check NFT to the withdrawer (will revert if we don't own it)
+        // Transfer the Check NFT to the extractor (will revert if we don't own it)
         CHECKS.safeTransferFrom(address(this), msg.sender, checkId);
 
-        emit CheckWithdrawn(msg.sender, checkId, burnAmount);
+        emit CheckExtracted(msg.sender, checkId, burnAmount);
     }
 
     /// @notice Composite two checks held by this contract
@@ -127,10 +142,26 @@ contract BlackCheck is ERC20, IERC721Receiver {
         emit One(id, msg.sender);
     }
 
+    /// @dev Process a deposit and mint tokens
+    /// @param depositor The address to mint tokens to
+    /// @param checkId The ID of the Check being deposited
+    function _processMint(address depositor, uint256 checkId) private {
+        // Mint amount is based on the checks count
+        uint256 mintAmount = _calculateMintAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
+
+        // Check max supply
+        if (totalSupply() + mintAmount > MAX_SUPPLY) revert MaxSupplyExceeded();
+
+        // Mint tokens to the depositor
+        _mint(depositor, mintAmount);
+
+        emit CheckDeposited(depositor, checkId, mintAmount);
+    }
+
     /// @dev Calculate the amount of tokens to mint for a given check
     /// @param divisorIndex The divisor index of the check (0-7)
     /// @return The amount of tokens (with 18 decimals)
-    function calculateMintAmount(uint8 divisorIndex) private pure returns (uint256) {
+    function _calculateMintAmount(uint8 divisorIndex) private pure returns (uint256) {
         // Black check (divisorIndex 7) represents the entire minted token supply.
         if (divisorIndex == 7) return MAX_SUPPLY;
 

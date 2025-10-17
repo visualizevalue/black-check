@@ -36,11 +36,25 @@ interface IChecks {
         Check memory check
     );
 
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) external;
+
     function safeTransferFrom(
         address from,
         address to,
         uint256 tokenId
     ) external;
+
+    function approve(address to, uint256 tokenId) external;
+
+    function setApprovalForAll(address operator, bool approved) external;
+
+    function getApproved(uint256 tokenId) external view returns (address);
+
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
 
     function composite(uint256 tokenId, uint256 burnId, bool swap) external;
 

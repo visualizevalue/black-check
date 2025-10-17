@@ -28,19 +28,29 @@ The formula: `tokens = (2^divisorIndex) / 4096` (with 18 decimals)
 
 ### Depositing Checks
 
-To deposit a Check NFT and receive `$BLKCHK` tokens:
+There are two ways to deposit a Check NFT and receive `$BLKCHK` tokens:
 
+#### Method 1: Direct Transfer (safeTransferFrom)
 1. Transfer your Check NFT to the BlackCheck contract address using `safeTransferFrom`
 2. The contract automatically calculates and mints the appropriate amount of tokens based on the Check's rarity
 3. Tokens are sent to your address
 
+#### Method 2: Approval Flow (mint)
+1. Approve the BlackCheck contract to transfer your Check NFT(s) using:
+   - `approve(blackCheckAddress, checkId)` for specific checks, OR
+   - `setApprovalForAll(blackCheckAddress, true)` for all your checks
+2. Anyone can call `mint([checkId1, checkId2, ...])` on the BlackCheck contract with an array of check IDs
+3. The contract transfers the Check(s) and mints tokens to the NFT owner (not the caller)
+
+Note: The `mint` function accepts an array of check IDs, allowing multiple checks to be deposited in a single transaction. Since tokens are always minted to the NFT owner, anyone can call `mint` to help process approved checks without security concerns.
+
 **Important**: Once deposited, your specific Check can be composited by anyone at any time. You may not be able to retrieve the exact same Check you deposited.
 
-### Withdrawing Checks
+### Extracting Checks
 
-To withdraw a specific Check NFT:
+To extract a specific Check NFT:
 
-1. Call `withdraw(checkId)` with the ID of the Check you want
+1. Call `extract(checkId)` with the ID of the Check you want
 2. The contract burns the required amount of tokens from your balance
 3. The Check NFT is transferred to you (if the contract owns it)
 
