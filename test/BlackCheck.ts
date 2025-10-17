@@ -305,8 +305,6 @@ describe("Black Check", async function () {
 
       // Query and save the black check's tokenURI
       const tokenURI = await checksContract.read.tokenURI([SINGLE_CHECKS[0]]);
-      console.log("\n=== Black Check Token URI ===");
-      console.log(tokenURI);
 
       // Parse and save the metadata
       if (tokenURI.startsWith("data:application/json;base64,")) {
@@ -320,21 +318,24 @@ describe("Black Check", async function () {
         // Save metadata JSON
         const metadataPath = join(__dirname, "black-check-metadata.json");
         writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
-        console.log(`\nMetadata saved to: ${metadataPath}`);
 
         // Save SVG
-        if (metadata.image && metadata.image.startsWith("data:image/svg+xml;base64,")) {
-          const svgBase64 = metadata.image.replace("data:image/svg+xml;base64,", "");
+        if (
+          metadata.image &&
+          metadata.image.startsWith("data:image/svg+xml;base64,")
+        ) {
+          const svgBase64 = metadata.image.replace(
+            "data:image/svg+xml;base64,",
+            "",
+          );
           const svgContent = Buffer.from(svgBase64, "base64").toString("utf-8");
           const svgPath = join(__dirname, "black-check.svg");
           writeFileSync(svgPath, svgContent);
-          console.log(`SVG saved to: ${svgPath}`);
         }
 
         // Save full tokenURI
         const tokenURIPath = join(__dirname, "black-check-token-uri.txt");
         writeFileSync(tokenURIPath, tokenURI);
-        console.log(`Token URI saved to: ${tokenURIPath}`);
       }
 
       // Verify all others were burned
