@@ -701,8 +701,8 @@ describe("Black Check", async function () {
     });
   });
 
-  describe("Extractions", () => {
-    it("should extract a check by burning tokens", async () => {
+  describe("Exchanges", () => {
+    it("should exchange tokens for a check by burning tokens", async () => {
       const checkId = SINGLE_CHECKS[0];
       const checkOwner = await checksContract.read.ownerOf([checkId]);
 
@@ -724,8 +724,8 @@ describe("Black Check", async function () {
       const balanceBefore = await contract.read.balanceOf([checkOwner]);
       assert(balanceBefore > 0n, "Should have tokens after deposit");
 
-      // Extract the check
-      await contract.write.extract([checkId], {
+      // Exchange tokens for the check
+      await contract.write.exchange([checkId], {
         account: checkOwner,
         client: ownerClient,
       });
@@ -741,14 +741,14 @@ describe("Black Check", async function () {
       await testClient.stopImpersonatingAccount({ address: checkOwner });
     });
 
-    it("should revert when extracting with insufficient tokens", async () => {
+    it("should revert when exchanging with insufficient tokens", async () => {
       const [deployer] = await viem.getWalletClients();
       const checkId = SINGLE_CHECKS[0];
 
-      // Try to extract without having deposited
+      // Try to exchange without having tokens
       await assert.rejects(
         async () => {
-          await contract.write.extract([checkId], {
+          await contract.write.exchange([checkId], {
             account: deployer.account,
           });
         },
@@ -853,7 +853,7 @@ describe("Black Check", async function () {
   });
 
   describe("One (Black Check Creation)", () => {
-    it("should prevent black check extraction for less than 1.00 $BLKCHK", async () => {
+    it("should prevent black check exchange for less than 1.00 $BLKCHK", async () => {
       // Deposit all 64 single checks from their respective owners
       const depositors: Array<{ address: `0x${string}`; balance: bigint }> = [];
 
@@ -906,7 +906,7 @@ describe("Black Check", async function () {
         "Should have a depositor with less than 1.0 tokens",
       );
 
-      // Try to extract the black check - should fail because it costs 1.0 tokens
+      // Try to exchange for the black check - should fail because it costs 1.0 tokens
       await testClient.impersonateAccount({ address: smallDepositor.address });
       const smallDepositorClient = await viem.getWalletClient(
         smallDepositor.address,
@@ -914,7 +914,7 @@ describe("Black Check", async function () {
 
       await assert.rejects(
         async () => {
-          await contract.write.extract([blackCheckId], {
+          await contract.write.exchange([blackCheckId], {
             account: smallDepositor.address,
             client: smallDepositorClient,
           });
@@ -925,7 +925,7 @@ describe("Black Check", async function () {
             error.message.includes("reverted")
           );
         },
-        "Should fail to extract black check with only 0.015625 tokens",
+        "Should fail to exchange for black check with only 0.015625 tokens",
       );
 
       await testClient.stopImpersonatingAccount({

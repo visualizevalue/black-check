@@ -46,11 +46,11 @@ Note: The `mint` function accepts an array of check IDs, allowing multiple check
 
 **Important**: Once deposited, your specific Check can be composited by anyone at any time. You may not be able to retrieve the exact same Check you deposited.
 
-### Extracting Checks
+### Exchanging for Checks
 
-To extract a specific Check NFT:
+To exchange your $BLKCHK tokens for a specific Check NFT:
 
-1. Call `extract(checkId)` with the ID of the Check you want
+1. Call `exchange(checkId)` with the ID of the Check you want
 2. The contract burns the required amount of tokens from your balance
 3. The Check NFT is transferred to you (if the contract owns it)
 
