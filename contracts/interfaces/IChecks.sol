@@ -47,4 +47,6 @@ interface IChecks {
     function infinity(uint256[] calldata tokenIds) external;
 
     function ownerOf(uint256 tokenId) external view returns (address);
+
+    function tokenURI(uint256 tokenId) external view returns (string memory);
 }

@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { beforeEach, describe, it } from "node:test";
+import { writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { network } from "hardhat";
 import { parseEther, type Address } from "viem";
 import BlackCheckModule from "../ignition/modules/BlackCheck.js";
 import { CHECKS_ADDRESS, EIGHTY_CHECKS, SINGLE_CHECKS } from "./fixtures.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 describe("Black Check", async function () {
   const { viem, ignition } = await network.connect("hardhatMainnet");
@@ -296,6 +302,40 @@ describe("Black Check", async function () {
         SINGLE_CHECKS[0],
       ]);
       assert.equal(blackCheckOwner, contract.address);
+
+      // Query and save the black check's tokenURI
+      const tokenURI = await checksContract.read.tokenURI([SINGLE_CHECKS[0]]);
+      console.log("\n=== Black Check Token URI ===");
+      console.log(tokenURI);
+
+      // Parse and save the metadata
+      if (tokenURI.startsWith("data:application/json;base64,")) {
+        const base64Data = tokenURI.replace(
+          "data:application/json;base64,",
+          "",
+        );
+        const jsonString = Buffer.from(base64Data, "base64").toString("utf-8");
+        const metadata = JSON.parse(jsonString);
+
+        // Save metadata JSON
+        const metadataPath = join(__dirname, "black-check-metadata.json");
+        writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+        console.log(`\nMetadata saved to: ${metadataPath}`);
+
+        // Save SVG
+        if (metadata.image && metadata.image.startsWith("data:image/svg+xml;base64,")) {
+          const svgBase64 = metadata.image.replace("data:image/svg+xml;base64,", "");
+          const svgContent = Buffer.from(svgBase64, "base64").toString("utf-8");
+          const svgPath = join(__dirname, "black-check.svg");
+          writeFileSync(svgPath, svgContent);
+          console.log(`SVG saved to: ${svgPath}`);
+        }
+
+        // Save full tokenURI
+        const tokenURIPath = join(__dirname, "black-check-token-uri.txt");
+        writeFileSync(tokenURIPath, tokenURI);
+        console.log(`Token URI saved to: ${tokenURIPath}`);
+      }
 
       // Verify all others were burned
       for (let i = 1; i < SINGLE_CHECKS.length; i++) {
