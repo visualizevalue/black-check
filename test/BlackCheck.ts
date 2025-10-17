@@ -760,6 +760,100 @@ describe("Black Check", async function () {
         },
       );
     });
+
+    it("should revert when exchanging a check that was burned during composite", async () => {
+      // Get two 80-checks for compositing
+      const keepId = EIGHTY_CHECKS[0];
+      const burnId = EIGHTY_CHECKS[1];
+
+      // Get owners and deposit both checks
+      const keepOwner = await checksContract.read.ownerOf([keepId]);
+      const burnOwner = await checksContract.read.ownerOf([burnId]);
+
+      // Fund both owners with ETH for gas
+      await testClient.setBalance({
+        address: keepOwner,
+        value: parseEther("10"),
+      });
+      await testClient.setBalance({
+        address: burnOwner,
+        value: parseEther("10"),
+      });
+
+      // Deposit keepId
+      await testClient.impersonateAccount({ address: keepOwner });
+      const keepOwnerClient = await viem.getWalletClient(keepOwner);
+      await checksContract.write.safeTransferFrom(
+        [keepOwner, contract.address, keepId],
+        { account: keepOwner, client: keepOwnerClient },
+      );
+
+      const keepOwnerBalance = await contract.read.balanceOf([keepOwner]);
+      await testClient.stopImpersonatingAccount({ address: keepOwner });
+
+      // Deposit burnId
+      await testClient.impersonateAccount({ address: burnOwner });
+      const burnOwnerClient = await viem.getWalletClient(burnOwner);
+      await checksContract.write.safeTransferFrom(
+        [burnOwner, contract.address, burnId],
+        { account: burnOwner, client: burnOwnerClient },
+      );
+
+      const burnOwnerBalance = await contract.read.balanceOf([burnOwner]);
+      await testClient.stopImpersonatingAccount({ address: burnOwner });
+
+      // Verify contract owns both checks
+      assert.equal(
+        await checksContract.read.ownerOf([keepId]),
+        contract.address,
+      );
+      assert.equal(
+        await checksContract.read.ownerOf([burnId]),
+        contract.address,
+      );
+
+      // Composite the checks - this will burn burnId
+      const [deployer] = await viem.getWalletClients();
+      await contract.write.composite([keepId, burnId], {
+        account: deployer.account,
+      });
+
+      // Verify burnId was burned (no longer exists)
+      await assert.rejects(
+        async () => {
+          await checksContract.read.ownerOf([burnId]);
+        },
+        (error: Error) => {
+          return (
+            error.message.includes("ERC721NonexistentToken") ||
+            error.message.includes("reverted")
+          );
+        },
+      );
+
+      // Now try to exchange for the burned check - should fail
+      // First, fund the burnOwner so they have enough tokens
+      await testClient.impersonateAccount({ address: burnOwner });
+      const burnOwnerClientRetry = await viem.getWalletClient(burnOwner);
+
+      await assert.rejects(
+        async () => {
+          await contract.write.exchange([burnId], {
+            account: burnOwner,
+            client: burnOwnerClientRetry,
+          });
+        },
+        (error: Error) => {
+          return (
+            error.message.includes("ERC721NonexistentToken") ||
+            error.message.includes("reverted")
+          );
+        },
+        "Should not be able to exchange a burned check",
+      );
+
+      await testClient.stopImpersonatingAccount({ address: burnOwner });
+    });
   });
 
   describe("Composite", () => {
