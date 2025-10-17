@@ -1,65 +1,103 @@
-        // 80-check → 0.000244140625 (1/4096)
-        // 40-check → 0.00048828125  (2/4096)
-        // 20-check → 0.0009765625   (4/4096)
-        // 10-check → 0.001953125    (8/4096)
-        //  5-check → 0.00390625    (16/4096)
-        //  4-check → 0.0078125     (32/4096)
-        //  1-check → 0.015625      (64/4096)
+# Black Check
 
-# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
+**An ERC20 token backed by Checks Originals NFTs**
 
-This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+Black Check (`$BLKCHK`) is an experimental digital artwork that creates a fungible token representation of [Checks Originals](https://etherscan.io/address/0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1) NFTs. The contract accepts Check NFTs and mints tokens proportional to their rarity, with a maximum supply of 1 token (1 × 10^18 wei).
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+> **⚠️ Important Notice**
+>
+> Participation in this project involves engagement with experimental digital artworks and is undertaken entirely at your own risk. This work does not constitute an offer to sell or the solicitation of an offer to buy any security, commodity, or financial instrument in any jurisdiction. It is a creative exploration of ownership, value, and representation, not an investment vehicle. No guarantees are made regarding liquidity, market value, or future performance.
 
-## Project Overview
+## Token Allocations
 
-This example project includes:
+The amount of `$BLKCHK` minted per Check depends on its divisor index (rarity):
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+| Check Type | Tokens Minted | Decimal       | Fraction     |
+|------------|---------------|---------------|--------------|
+| 80-check   | 0.000244140625| 1/4096        | 2^0 / 4096   |
+| 40-check   | 0.00048828125 | 2/4096        | 2^1 / 4096   |
+| 20-check   | 0.0009765625  | 4/4096        | 2^2 / 4096   |
+| 10-check   | 0.001953125   | 8/4096        | 2^3 / 4096   |
+| 5-check    | 0.00390625    | 16/4096       | 2^4 / 4096   |
+| 4-check    | 0.0078125     | 32/4096       | 2^5 / 4096   |
+| 1-check    | 0.015625      | 64/4096       | 2^6 / 4096   |
 
-## Usage
+The formula: `tokens = (2^divisorIndex) / 4096` (with 18 decimals)
+
+## How It Works
+
+### Depositing Checks
+
+To deposit a Check NFT and receive `$BLKCHK` tokens:
+
+1. Transfer your Check NFT to the BlackCheck contract address
+2. The contract automatically calculates and mints the appropriate amount of tokens based on the Check's rarity
+3. Tokens are sent to your address
+
+**Important**: Once deposited, your specific Check can be composited by anyone at any time. You may not be able to retrieve the exact same Check you deposited.
+
+### Withdrawing Checks
+
+To withdraw a specific Check NFT:
+
+1. Call `withdraw(checkId)` with the ID of the Check you want
+2. The contract burns the required amount of tokens from your balance
+3. The Check NFT is transferred to you (if the contract owns it)
+
+### Compositing Checks
+
+Anyone can composite Checks held by the contract:
+
+```solidity
+composite(keepId, burnId)
+```
+
+- `keepId`: The token ID to keep (must be smaller than burnId)
+- `burnId`: The token ID to burn
+- This progresses the Checks toward becoming more rare
+
+### Creating the Black Check
+
+The ultimate goal is to create "one" - a single Black Check from 64 single-check tokens:
+
+```solidity
+one(tokenIds)
+```
+
+- Requires an array of 64 single-check token IDs
+- The smallest ID must be at index 0
+- All checks must be owned by the contract
+- Calls the Checks contract's `infinity()` function
+- The first check becomes the Black Check (1/∞)
+
+## Contract Details
+
+- **Address**: TBD (deploy to mainnet)
+- **Token Name**: Black Check
+- **Token Symbol**: $BLKCHK
+- **Decimals**: 18
+- **Max Supply**: 1.0 (1 × 10^18 wei)
+- **Checks Contract**: `0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1`
+
+## Development
 
 ### Running Tests
-
-To run all the tests in the project, execute the following command:
 
 ```shell
 npx hardhat test
 ```
 
-You can also selectively run the Solidity or `node:test` tests:
+### Project Structure
 
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
-```
+- `contracts/BlackCheck.sol` - Main ERC20 contract
+- `contracts/interfaces/` - Interface definitions
+- `contracts/test/` - Foundry-compatible Solidity tests
+- `contracts/mocks/` - Mock contracts for testing
 
-### Make a deployment to Sepolia
+## Art Statement
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+This project may or may not be notable. It explores the transformation of discrete digital objects into fungible representations, questioning the nature of ownership, rarity, and collective creation in the context of on-chain art.
 
-To run the deployment to a local chain:
+---
 
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
-```
-
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+*A VisualizeValue project*
