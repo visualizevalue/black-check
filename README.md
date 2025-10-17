@@ -1,8 +1,8 @@
-# Black Check
+# Black Check ($BLKCHK)
 
 **An ERC20 token backed by Checks Originals NFTs**
 
-Black Check (`$BLKCHK`) is an experimental digital artwork that creates a fungible token representation of [Checks Originals](https://etherscan.io/address/0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1) NFTs. The contract accepts Check NFTs and mints tokens proportional to their rarity, with a maximum supply of 1 token (1 × 10^18 wei).
+Black Check (`$BLKCHK`) is an experimental digital artwork that creates a fungible token representation of [Checks Originals](https://etherscan.io/address/0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1) NFTs. The contract accepts Check NFTs and mints tokens proportional to their checks count, with a maximum supply of 1 token (1 × 10^18 wei).
 
 > **⚠️ Important Notice**
 >
@@ -10,17 +10,17 @@ Black Check (`$BLKCHK`) is an experimental digital artwork that creates a fungib
 
 ## Token Allocations
 
-The amount of `$BLKCHK` minted per Check depends on its divisor index (rarity):
+The amount of `$BLKCHK` minted per Check depends on its check count:
 
-| Check Type | Tokens Minted | Decimal       | Fraction     |
-|------------|---------------|---------------|--------------|
-| 80-check   | 0.000244140625| 1/4096        | 2^0 / 4096   |
-| 40-check   | 0.00048828125 | 2/4096        | 2^1 / 4096   |
-| 20-check   | 0.0009765625  | 4/4096        | 2^2 / 4096   |
-| 10-check   | 0.001953125   | 8/4096        | 2^3 / 4096   |
-| 5-check    | 0.00390625    | 16/4096       | 2^4 / 4096   |
-| 4-check    | 0.0078125     | 32/4096       | 2^5 / 4096   |
-| 1-check    | 0.015625      | 64/4096       | 2^6 / 4096   |
+| Check Type | Tokens Minted  | Decimal | Fraction   |
+| ---------- | -------------- | ------- | ---------- |
+| 80-check   | 0.000244140625 | 1/4096  | 2^0 / 4096 |
+| 40-check   | 0.00048828125  | 2/4096  | 2^1 / 4096 |
+| 20-check   | 0.0009765625   | 4/4096  | 2^2 / 4096 |
+| 10-check   | 0.001953125    | 8/4096  | 2^3 / 4096 |
+| 5-check    | 0.00390625     | 16/4096 | 2^4 / 4096 |
+| 4-check    | 0.0078125      | 32/4096 | 2^5 / 4096 |
+| 1-check    | 0.015625       | 64/4096 | 2^6 / 4096 |
 
 The formula: `tokens = (2^divisorIndex) / 4096` (with 18 decimals)
 
@@ -30,7 +30,7 @@ The formula: `tokens = (2^divisorIndex) / 4096` (with 18 decimals)
 
 To deposit a Check NFT and receive `$BLKCHK` tokens:
 
-1. Transfer your Check NFT to the BlackCheck contract address
+1. Transfer your Check NFT to the BlackCheck contract address using `safeTransferFrom`
 2. The contract automatically calculates and mints the appropriate amount of tokens based on the Check's rarity
 3. Tokens are sent to your address
 
@@ -54,7 +54,7 @@ composite(keepId, burnId)
 
 - `keepId`: The token ID to keep (must be smaller than burnId)
 - `burnId`: The token ID to burn
-- This progresses the Checks toward becoming more rare
+- This progresses the Checks toward Single Checks and eventually the Black Check
 
 ### Creating the Black Check
 
@@ -94,10 +94,6 @@ npx hardhat test
 - `contracts/test/` - Foundry-compatible Solidity tests
 - `contracts/mocks/` - Mock contracts for testing
 
-## Art Statement
-
-This project may or may not be notable. It explores the transformation of discrete digital objects into fungible representations, questioning the nature of ownership, rarity, and collective creation in the context of on-chain art.
-
 ---
 
-*A VisualizeValue project*
+_This project may or may not be notable. It explores the transformation of discrete digital objects into fungible representations, questioning the nature of ownership, rarity, and collective creation in the context of on-chain art._
