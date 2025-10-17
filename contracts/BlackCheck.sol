@@ -8,17 +8,22 @@ import "./interfaces/IERC721Receiver.sol";
 /**
  * @title  BlackCheck
  * @author VisualizeValue
- * @notice Participation in this project involves engagement with experimental digital artworks
- *         and is undertaken entirely at your own risk. This work does not constitute an offer to sell
- *         or the solicitation of an offer to buy any security, commodity, or financial instrument
- *         in any jurisdiction. It is a creative exploration of ownership, value, and representation,
- *         not an investment vehicle. no guarantees are made regarding liquidity, market value,
- *         or future performance.
- *         By interacting, you acknowledge that any value or meaning assigned to these assets
- *         is purely subjective and interpretive, and that you are solely responsible
- *         for compliance with all applicable laws in your region.
- *         ---------
- *         This project may or may not be notable.
+ * @notice Participation in this project involves engagement with experimental digital artworks on Ethereum.
+ *         Interactions including mint, extract, and composite are artistic gestures, not financial activities.
+ *         This work does not constitute an offer to sell or buy any security or financial instrument.
+ *
+ *         By interacting, you accept all risks of smart contract use, including potential asset loss or failure.
+ *         No guarantees are made regarding liquidity, market value, availability, or future performance.
+ *
+ *         Checks deposited may be modified, composited, or irreversibly transformed by others at any time.
+ *         Extraction of certain forms, including the Black Check, may be impractical or impossible.
+ *         All outcomes are part of the intended artistic process.
+ *
+ *         Any value or meaning assigned to these assets is subjective and interpretive.
+ *         Participation is voluntary and at your own risk.
+ *         You are responsible for compliance with all applicable laws and regulations.
+ *
+ *         This artwork may or may not be notable.
  */
 contract BlackCheck is ERC20, IERC721Receiver {
     /// @notice The Checks Originals contract
