@@ -111,7 +111,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
         emit Exchange(msg.sender, checkId, burnAmount);
     }
 
-    /// @notice Composite two checks held by this contract
+    /// @notice Composite two Checks held by this contract
     /// @param keepId The token ID to keep
     /// @param burnId The token ID to burn
     /// @dev Anyone can call this to composite towards the Black Check
@@ -125,9 +125,9 @@ contract BlackCheck is ERC20, IERC721Receiver {
         emit Composite(keepId, burnId, msg.sender);
     }
 
-    /// @notice Create a black check from 64 single-check tokens
+    /// @notice Create a Black Check from 64 single-check tokens
     /// @param tokenIds Array of 64 single-check token IDs, with the smallest ID at index 0
-    /// @dev Anyone can call this. The first check in the list will survive as the Black Check.
+    /// @dev Anyone can call this. The first check in the list will survive as the Black Check
     function one(uint256[] calldata tokenIds) external {
         uint256 id = tokenIds[0];
 
@@ -162,7 +162,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     /// @param divisorIndex The divisor index of the check (0-7)
     /// @return The amount of tokens (with 18 decimals)
     function _calculateAmount(uint8 divisorIndex) private pure returns (uint256) {
-        // Black check (divisorIndex 7) represents the entire minted token supply.
+        // Black check (divisorIndex 7) represents the entire minted token supply
         if (divisorIndex == 7) return MAX_SUPPLY;
 
         // For divisorIndex 0-6, use the exponential formula
