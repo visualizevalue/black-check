@@ -73,7 +73,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    /// @notice Mint tokens by transferring in approved Check NFTs
+    /// @notice Mint $BLKCHK by transferring in Checks Originals
     /// @param checkIds Array of Check IDs to mint tokens for (must be approved to this contract)
     /// @dev Anyone can call this function. Tokens are always minted to the NFT owner, not the caller.
     function mint(uint256[] calldata checkIds) external {
@@ -100,7 +100,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     /// @param checkId The ID of the Check to exchange for
     function exchange(uint256 checkId) external {
         // Get the check's divisor index
-        uint256 burnAmount = _calculateMintAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
+        uint256 burnAmount = _calculateAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
 
         // Burn tokens (reverts on insufficient balance)
         _burn(msg.sender, burnAmount);
@@ -147,7 +147,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     /// @param checkId The ID of the Check being deposited
     function _processMint(address to, uint256 checkId) private {
         // Mint amount is based on the checks count
-        uint256 mintAmount = _calculateMintAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
+        uint256 mintAmount = _calculateAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
 
         // Check max supply
         if (totalSupply() + mintAmount > MAX_SUPPLY) revert MaxSupplyExceeded();
@@ -161,7 +161,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     /// @dev Calculate the amount of tokens to mint for a given check
     /// @param divisorIndex The divisor index of the check (0-7)
     /// @return The amount of tokens (with 18 decimals)
-    function _calculateMintAmount(uint8 divisorIndex) private pure returns (uint256) {
+    function _calculateAmount(uint8 divisorIndex) private pure returns (uint256) {
         // Black check (divisorIndex 7) represents the entire minted token supply.
         if (divisorIndex == 7) return MAX_SUPPLY;
 
