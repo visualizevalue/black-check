@@ -8,20 +8,19 @@ import "./interfaces/IERC721Receiver.sol";
 /**
  * @title  BlackCheck
  * @author VisualizeValue
- * @notice Participation in this project involves engagement with experimental digital artworks on Ethereum.
- *         Interactions including mint, extract, and composite are artistic gestures, not financial activities.
- *         This work does not constitute an offer to sell or buy any security or financial instrument.
+ * @notice Participation involves engagement with experimental digital artworks on Ethereum.
+ *         Mint, extract, and composite are creative acts — not financial transactions or investments.
+ *         No offer to sell or buy any security or financial instrument is made or implied.
  *
- *         By interacting, you accept all risks of smart contract use, including potential asset loss or failure.
- *         No guarantees are made regarding liquidity, market value, availability, or future performance.
+ *         By interacting, you accept all risks, including potential loss, error, or contract malfunction.
+ *         No guarantees exist regarding liquidity, value, availability, or performance.
+ *         Checks may be modified or irreversibly transformed by others at any time.
+ *         Extraction of some forms, including the Black Check, may be impossible.
  *
- *         Checks deposited may be modified, composited, or irreversibly transformed by others at any time.
- *         Extraction of certain forms, including the Black Check, may be impractical or impossible.
- *         All outcomes are part of the intended artistic process.
- *
- *         Any value or meaning assigned to these assets is subjective and interpretive.
+ *         All results are part of the artwork.
+ *         Value and meaning are subjective.
  *         Participation is voluntary and at your own risk.
- *         You are responsible for compliance with all applicable laws and regulations.
+ *         You are responsible for following all applicable laws.
  *
  *         This artwork may or may not be notable.
  */
