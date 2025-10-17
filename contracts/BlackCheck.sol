@@ -99,7 +99,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     /// @notice Exchange $BLKCHK tokens for a specific Check NFT
     /// @param checkId The ID of the Check to exchange for
     function exchange(uint256 checkId) external {
-        // Get the check's divisor index
+        // Compute the $BLKCHK allocation for this Checks Original
         uint256 burnAmount = _calculateAmount(CHECKS.getCheck(checkId).stored.divisorIndex);
 
         // Burn tokens (reverts on insufficient balance)
