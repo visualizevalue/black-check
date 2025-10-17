@@ -127,9 +127,15 @@ contract BlackCheck is ERC20, IERC721Receiver {
     }
 
     /// @dev Calculate the amount of tokens to mint for a given check
-    /// @param divisorIndex The divisor index of the check (0-6)
+    /// @param divisorIndex The divisor index of the check (0-7)
     /// @return The amount of tokens (with 18 decimals)
     function calculateMintAmount(uint8 divisorIndex) private pure returns (uint256) {
+        // Black check (divisorIndex 7) represents 64 single checks composited together.
+        if (divisorIndex == 7) {
+            return 1 * 10**18; // It is worth the entire token supply of 1.0
+        }
+
+        // For divisorIndex 0-6, use the exponential formula
         return ((1 << divisorIndex) * 10**18) / 4096;
     }
 }
