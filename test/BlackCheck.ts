@@ -66,6 +66,42 @@ describe("Black Check", async function () {
     });
   });
 
+  describe("ETH Rejection", () => {
+    it("should revert when sending ETH via receive()", async () => {
+      const [deployer] = await viem.getWalletClients();
+      const publicClient = await viem.getPublicClient();
+
+      await assert.rejects(
+        async () => {
+          await deployer.sendTransaction({
+            to: contract.address,
+            value: parseEther("1"),
+          });
+        },
+        (error: Error) => {
+          return error.message.includes("NoEthAccepted");
+        },
+      );
+    });
+
+    it("should revert when sending ETH via fallback()", async () => {
+      const [deployer] = await viem.getWalletClients();
+
+      await assert.rejects(
+        async () => {
+          await deployer.sendTransaction({
+            to: contract.address,
+            value: parseEther("1"),
+            data: "0x12345678", // Random data to trigger fallback
+          });
+        },
+        (error: Error) => {
+          return error.message.includes("NoEthAccepted");
+        },
+      );
+    });
+  });
+
   describe("Deposits (onERC721Received)", () => {
     it("should accept a single check and mint correct tokens", async () => {
       // Use check #1 (single check)

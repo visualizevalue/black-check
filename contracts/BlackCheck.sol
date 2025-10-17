@@ -42,6 +42,7 @@ contract BlackCheck is ERC20, IERC721Receiver {
     error InvalidOrder();
     error MaxSupplyExceeded();
     error OnlyChecksContract();
+    error NoEthAccepted();
 
     /// @notice Returns the name of the token
     function name() public pure override returns (string memory) {
@@ -135,5 +136,15 @@ contract BlackCheck is ERC20, IERC721Receiver {
 
         // For divisorIndex 0-6, use the exponential formula
         return ((1 << divisorIndex) * 10**18) / 4096;
+    }
+
+    /// @notice Reject all ETH transfers
+    receive() external payable {
+        revert NoEthAccepted();
+    }
+
+    /// @notice Reject all ETH transfers
+    fallback() external payable {
+        revert NoEthAccepted();
     }
 }
