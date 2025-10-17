@@ -157,6 +157,65 @@ describe("Black Check", async function () {
         },
       );
     });
+
+    it("should revert when transferring in non-Checks NFTs", async () => {
+      const [deployer] = await viem.getWalletClients();
+      const publicClient = await viem.getPublicClient();
+
+      // Deploy a mock ERC721 contract (not Checks)
+      const mockNFTBytecode = await viem.deployContract(
+        "MockERC721",
+        [],
+        deployer.account,
+      );
+
+      // Get the mock NFT contract
+      const mockNFT = await viem.getContractAt(
+        "MockERC721",
+        mockNFTBytecode.address,
+      );
+
+      // Mint a mock NFT to the deployer
+      const mintTx = await mockNFT.write.mint([deployer.account.address], {
+        account: deployer.account,
+      });
+
+      // Wait for the mint transaction to be mined
+      await publicClient.waitForTransactionReceipt({ hash: mintTx });
+
+      // Verify the deployer owns the mock NFT
+      const owner = await mockNFT.read.ownerOf([0n]);
+      assert.equal(
+        owner.toLowerCase(),
+        deployer.account.address.toLowerCase(),
+      );
+
+      // Try to transfer the mock NFT to BlackCheck contract - should fail
+      await assert.rejects(
+        async () => {
+          await mockNFT.write.safeTransferFrom(
+            [deployer.account.address, contract.address, 0n],
+            { account: deployer.account },
+          );
+        },
+        (error: Error) => {
+          return error.message.includes("OnlyChecksContract");
+        },
+        "Should reject NFTs that are not from the Checks contract",
+      );
+
+      // Verify no tokens were minted
+      const balance = await contract.read.balanceOf([deployer.account.address]);
+      assert.equal(balance, 0n, "No tokens should be minted from fake NFT");
+
+      // Verify the mock NFT is still owned by deployer (transfer failed)
+      const stillOwner = await mockNFT.read.ownerOf([0n]);
+      assert.equal(
+        stillOwner.toLowerCase(),
+        deployer.account.address.toLowerCase(),
+        "Mock NFT should not have been transferred",
+      );
+    });
   });
 
   describe("Minting (approval flow)", () => {
