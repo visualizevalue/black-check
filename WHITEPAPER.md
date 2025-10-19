@@ -515,7 +515,7 @@ function _calculateAmount(uint8 divisorIndex) private pure returns (uint256)
 ## Resources
 
 - **Checks Project**: [https://checks.art/](https://checks.art/)
-- **VisualizeValue**: [https://visualizevalue.com](https://visualizevalue.com)
+- **Visualize Value**: [https://visualizevalue.com](https://visualizevalue.com)
 - **BlackCheck GitHub**: [https://github.com/visualizevalue/black-check](https://github.com/visualizevalue/black-check)
 - **Checks Originals Contract**: [0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1](https://etherscan.io/address/0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1)
 - **Checks Editions Contract**: [0x34eEBEE6942d8Def3c125458D1a86e0A897fd6f9](https://etherscan.io/address/0x34eEBEE6942d8Def3c125458D1a86e0A897fd6f9)
