@@ -38,7 +38,7 @@ The ultimate artistic goal is the creation of "1/∞" — a single Black Check f
 
 ### Origins
 
-Checks Originals (`0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1`) and Checks Editions (`0x34eEBEE6942d8Def3c125458D1a86e0A897fd6f9`) are generative art projects by VisualizeValue that have become significant cultural artifacts in the NFT space. Over the past three years, the Checks ecosystem has traded over **94,000 ETH**, demonstrating sustained community engagement and cultural relevance.
+Checks Originals (`0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1`) and Checks Editions (`0x34eEBEE6942d8Def3c125458D1a86e0A897fd6f9`) are generative art projects by Visualize Value that have become significant cultural artifacts in the NFT space. Over the past three years, the Checks ecosystem has traded over **94,000 ETH**, demonstrating sustained community engagement and cultural relevance.
 
 ### The Checks Mechanism
 
