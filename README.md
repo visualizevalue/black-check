@@ -4,7 +4,7 @@
 
 Black Check (`$BLKCHK`) is an experimental digital artwork that creates a fungible token representation of [Checks Originals](https://etherscan.io/address/0x036721e5A769Cc48B3189EFbb9ccE4471E8A48B1) NFTs. The contract accepts Check NFTs and mints tokens proportional to their checks count, with a maximum supply of 1 token (1 × 10^18 wei).
 
-📄 **[Read the Full Whitepaper](WHITEPAPER.md)**
+📄 **[Read the Full Whitepaper](https://github.com/visualizevalue/vvhitepapers/blob/main/projects/BLACK_CHECK.md)**
 
 > **⚠️ Important Notice**
 >
